@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Detective Global ’95</title>
+<style>
+:root{--bg:#d8d2c4;--ink:#1c1c1c;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b0b14;--ink:#eee}}
+:root[data-theme="dark"]{--bg:#0b0b14;--ink:#eee}
+html,body{margin:0;min-height:100%}
+body{background:var(--bg);color:var(--ink);font-family:"Courier New",monospace;display:flex;justify-content:center;align-items:center;min-height:100vh;padding:8px;box-sizing:border-box}
+.scr{width:min(100%,720px);background:#0000aa;color:#fff;border:4px solid #aaa;box-shadow:6px 6px 0 #000;padding:10px;display:flex;flex-direction:column;gap:8px}
+#hd{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;background:#000;color:#ffff55;padding:6px 8px;font-weight:bold;font-size:13px}
+svg{width:100%;background:#0a2a6a;border:2px solid #55ffff;display:block}
+#tx{background:#000;border:2px solid #fff;padding:10px;min-height:84px;font-size:15px;line-height:1.4;cursor:pointer;white-space:pre-wrap}
+#nb{background:#001a55;border:2px dashed #55ffff;padding:6px 8px;font-size:12px;line-height:1.35;max-height:96px;overflow-y:auto;white-space:pre-wrap;color:#cfe}
+.row{display:flex;gap:6px;flex-wrap:wrap}
+.lb{width:100%;font-size:12px;color:#55ffff;margin:4px 0 2px}
+button{background:#55ffff;color:#000;border:2px solid #fff;font:bold 13px "Courier New",monospace;padding:8px 10px;cursor:pointer;box-shadow:2px 2px 0 #000;text-align:left}
+button:hover:not(:disabled){background:#ffff55}
+button:disabled{background:#555;color:#999;cursor:default}
+</style>
+</head>
+<body>
+<div class="scr">
+<div id="hd"></div>
+<svg id="mp" viewBox="0 0 360 180"></svg>
+<div id="tx"></div>
+<div id="nb"></div>
+<div id="bt"></div>
+</div>
+<script>
+const D=`Buenos Aires|-34.6|-58.4|Sudamérica|español|pesos argentinos|un obelisco blanco en una avenida enorme|asado
+Río de Janeiro|-22.9|-43.2|Sudamérica|portugués|reales|una estatua gigante de brazos abiertos sobre un cerro|feijoada
+Lima|-12|-77|Sudamérica|español|soles|la ciudadela inca de Machu Picchu|ceviche
+Bogotá|4.7|-74.1|Sudamérica|español|pesos colombianos|un cerro con un santuario sobre la ciudad|arepas
+Santiago|-33.4|-70.7|Sudamérica|español|pesos chilenos|la cordillera de los Andes pegada a la ciudad|empanadas de pino
+Ciudad de México|19.4|-99.1|Norteamérica|español|pesos mexicanos|las pirámides aztecas|tacos
+Nueva York|40.7|-74|Norteamérica|inglés|dólares|una estatua con antorcha en una isla|pizza al corte
+Los Ángeles|34|-118.2|Norteamérica|inglés|dólares|un cartel de letras blancas en una colina|hamburguesas
+Toronto|43.7|-79.4|Norteamérica|inglés|dólares canadienses|las cataratas del Niágara|poutine
+La Habana|23.1|-82.4|Norteamérica|español|pesos cubanos|autos antiguos y un malecón frente al mar|ropa vieja
+Londres|51.5|-0.1|Europa|inglés|libras esterlinas|un reloj gigante llamado Big Ben|fish and chips
+París|48.9|2.4|Europa|francés|euros|una torre de hierro muy famosa|croissants
+Madrid|40.4|-3.7|Europa|español|euros|un museo con Las Meninas|tortilla de papas
+Roma|41.9|12.5|Europa|italiano|euros|un coliseo de gladiadores|pasta
+Atenas|38|23.7|Europa|griego|euros|el Partenón|moussaka
+Berlín|52.5|13.4|Europa|alemán|euros|los restos de un muro famoso|salchichas
+Moscú|55.8|37.6|Europa|ruso|rublos|la Plaza Roja y el Kremlin|borsch
+Estambul|41|29|Europa|turco|liras turcas|una mezquita azul entre dos continentes|kebab
+Reikiavik|64.1|-21.9|Europa|islandés|coronas islandesas|géiseres y auroras boreales|pescado seco
+El Cairo|30|31.2|África|árabe|libras egipcias|las pirámides de Giza|koshari
+Nairobi|-1.3|36.8|África|suajili|chelines kenianos|un safari con leones|ugali
+Ciudad del Cabo|-33.9|18.4|África|inglés|rands|una montaña de cima plana|braai
+Marrakech|31.6|-8|África|árabe|dírhams|un mercado laberíntico con encantadores de serpientes|tajín
+Nueva Delhi|28.6|77.2|Asia|hindi|rupias|el Taj Mahal|curry
+Bangkok|13.8|100.5|Asia|tailandés|bahts|templos dorados y mercados flotantes|pad thai
+Pekín|39.9|116.4|Asia|chino|yuanes|una gran muralla|pato laqueado
+Seúl|37.6|127|Asia|coreano|wones|palacios antiguos entre rascacielos|kimchi
+Tokio|35.7|139.7|Asia|japonés|yenes|el monte Fuji y los trenes bala|sushi
+Dubái|25.2|55.3|Asia|árabe|dírhams|el edificio más alto del mundo|shawarma
+Sídney|-33.9|151.2|Oceanía|inglés|dólares australianos|una ópera con forma de velas|meat pie
+Auckland|-36.8|174.8|Oceanía|inglés|dólares neozelandeses|volcanes y ovejas por todos lados|pavlova`.split("\n").map(r=>{const a=r.split("|");return{n:a[0],la:+a[1],lo:+a[2],ct:a[3],lg:a[4],cu:a[5],lm:a[6],fd:a[7]}});
+const L=[["🏦","Banco","el cajero"],["🛍️","Mercado","una vendedora"],["🏨","Hotel","la recepcionista"],["📚","Biblioteca","el bibliotecario"],["☕","Café","el mozo"],["🛂","Aeropuerto","el de migraciones"]];
+const T=[["pelo",["rojo","negro","rubio","canoso"],v=>"tenía el pelo "+v],["afición",["colecciona relojes","toca la guitarra","hace malabares","juega al ajedrez"],v=>"dicen que "+v],["accesorio",["anteojos oscuros","un bastón","un sombrero","un tatuaje de ancla"],v=>"llevaba "+v]];
+const NM=["Carlos “El Zorro”","La Condesa Fugaz","Don Fantasma","Mimí la Ladrona","El Bandido Sombrerudo","Doña Astucia"];
+const ITEMS=["el Mate de Oro","el Dulce de Leche Dorado","la Guitarra de Gardel","la Camiseta firmada de Maradona","el Sombrero del Gaucho Rico"];
+const RK=["Novato","Detective","Inspector","Comisario","Jefe de Interpol","Leyenda Mundial"];
+const CONT=[[[-168,66],[-140,70],[-95,72],[-80,62],[-60,50],[-70,42],[-80,25],[-97,18],[-85,10],[-105,20],[-118,32],[-125,48],[-150,60]],[[-80,10],[-60,10],[-35,-6],[-40,-22],[-58,-38],[-68,-55],[-75,-45],[-72,-20],[-81,-5]],[[-10,36],[-10,55],[10,70],[60,75],[130,72],[170,66],[140,50],[122,30],[110,20],[100,5],[90,22],[72,20],[60,25],[45,15],[35,30],[25,38],[5,43]],[[-17,15],[-5,35],[10,37],[32,31],[43,12],[51,11],[40,-15],[32,-28],[18,-34],[12,-15],[9,4],[-8,5]],[[114,-22],[130,-12],[142,-11],[153,-27],[146,-39],[130,-32],[115,-34]]];
+const $=id=>document.getElementById(id),rnd=n=>Math.random()*n|0;
+const sh=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]]}return a};
+const hrs=(a,b)=>{const r=Math.PI/180,A=D[a],B=D[b];return Math.round(2*6371*Math.asin(Math.sqrt(Math.sin((B.la-A.la)*r/2)**2+Math.cos(A.la*r)*Math.cos(B.la*r)*Math.sin((B.lo-A.lo)*r/2)**2))/900+3)};
+let ac;function beep(f,d){try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain(),n=ac.currentTime;o.type="square";o.frequency.setValueAtTime(f,n);g.gain.setValueAtTime(.06,n);g.gain.exponentialRampToValueAtTime(.001,n+d);o.connect(g);g.connect(ac.destination);o.start();o.stop(n+d)}catch(e){}}
+const TK={menu:{b:96,l:[69,0,72,0,76,0,72,0,71,0,74,0,77,0,74,0,69,0,72,0,76,0,81,0,79,0,76,0,72,0,71,0],s:[45,0,0,0,52,0,0,0,43,0,0,0,50,0,0,0]},inv:{b:120,l:[0,0,62,0,0,65,0,0,0,0,64,0,0,62,0,0,0,0,62,0,0,65,0,0,0,0,69,0,68,0,65,0],s:[38,0,38,0,41,0,43,0,38,0,38,0,36,0,34,0]},fly:{b:80,w:"sine",l:[0,0,0,0,76,0,0,0,0,0,72,0,0,0,69,0,0,0,0,0,74,0,0,0,0,0,71,0,0,0,67,0],s:[45,0,45,0,52,0,52,0,43,0,43,0,50,0,50,0]},boss:{b:150,l:[76,0,76,79,0,76,0,74,72,0,72,76,0,72,0,71,76,0,76,79,0,83,0,81,79,0,76,74,0,71,0,0],s:[40,40,0,40,47,0,40,0,36,36,0,36,43,0,36,0]}};
+let want="menu",cur=null,tid,nt=0,step=0,muted=false;
+function note(m,t,d,y,v){const o=ac.createOscillator(),g=ac.createGain();o.type=y;o.frequency.value=440*2**((m-69)/12);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+d)}
+function tick(){const k=TK[cur];if(!k||!ac)return;const sp=60/k.b/2;while(nt<ac.currentTime+.25){const i=step%k.l.length,j=step%k.s.length;if(k.l[i])note(k.l[i],nt,sp*.85,k.w||"square",k.w?.07:.035);if(k.s[j])note(k.s[j],nt,sp*1.8,"triangle",.09);nt+=sp;step++}}
+function music(n){want=n;if(muted||cur===n)return;try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();cur=n;step=0;nt=ac.currentTime+.05;clearInterval(tid);tid=setInterval(tick,60)}catch(e){}}
+function tog(){muted=!muted;if(muted){clearInterval(tid);cur=null}else music(want);draw()}
+addEventListener("pointerdown",()=>{if(ac&&ac.state==="suspended")ac.resume();music(want)});
+let rank=0;try{rank=+localStorage.getItem("dg-rank")||0}catch(e){}
+let S=null,tw,full="",opts=[],ended=null;
+function say(s){clearInterval(tw);full=s;const el=$("tx");el.textContent="";let i=0;tw=setInterval(()=>{el.textContent=s.slice(0,++i);if(i%3===0)beep(500,.02);if(i>=s.length)clearInterval(tw)},14)}
+$("tx").onclick=()=>{clearInterval(tw);$("tx").textContent=full};
+function clue(a,b){
+  const A=D[a],B=D[b],dl=((B.lo-A.lo+540)%360)-180,dt=B.la-A.la,dir=Math.abs(dt)>Math.abs(dl)?(dt>0?"norte":"sur"):(dl>0?"este":"oeste");
+  const easy=["Preguntó cómo llegar a "+B.lm+".","Cambió su dinero a "+B.cu+".","Pidió "+B.fd+" y preguntó dónde conseguir más."];
+  const hard=["Hablaba "+B.lg+" por teléfono.","Dijo que viajaba a "+B.ct+".","Tomó un vuelo hacia el "+dir+".","Quiere ir a una ciudad del hemisferio "+(B.la<0?"sur":"norte")+"."];
+  const pool=rank===0?easy:rank===1?[...easy,hard[0]]:rank===2?[...easy,...hard]:[...hard,easy[1]];
+  return pool[rnd(pool.length)];
+}
+function trait(){
+  const un=[0,1,2].filter(k=>!S.kn.includes(k));if(!un.length)return "";
+  const k=un[rnd(un.length)];S.kn.push(k);const s="El sospechoso "+T[k][2](T[k][1][S.tt[k]])+".";S.nb.push("👤 "+s);return s;
+}
+function newCase(){
+  const len=5+Math.min(rank,2),rt=sh([...D.keys()]).slice(0,len),nm=sh(NM),tt=T.map(()=>rnd(4)),sus=[{n:nm[0],t:tt}];
+  for(let i=1;i<4;i++){const t=[...tt];sh([0,1,2]).slice(0,2).forEach(k=>t[k]=(t[k]+1+rnd(3))%4);sus.push({n:nm[i],t})}
+  const ord=sh([0,1,2,3]);
+  S={rt,p:0,cur:rt[0],t:100+len*10-rank*5,m:700,thief:rnd(3),gone:[],item:ITEMS[rnd(5)],vil:nm[0],sus:ord.map(i=>sus[i]),truth:ord.indexOf(0),tt,kn:[],nb:[],ex:false,stage:"inv",seen:[rt[0]]};
+  ended=null;music("inv");arrive(rt[0]);
+  say("🚨 ¡ALERTA INTERPOL! Robaron "+S.item+" en "+D[rt[0]].n+". Fue un ladrón misterioso y huyó por "+(len-1)+" ciudades. Tenés "+S.t+" horas y $"+S.m+". Investigá, anotá las pistas en tu cuaderno y juntá datos del sospechoso para la orden de arresto. ¡Suerte, "+RK[rank]+"!");
+}
+function arrive(c){
+  S.cur=c;S.locs=sh([0,1,2,3,4,5]).slice(0,3);S.gone=[];
+  const on=c===S.rt[S.p],nx=S.p<S.rt.length-1?S.rt[S.p+1]:null;
+  const dec=sh([...D.keys()].filter(k=>k!==c&&k!==S.rt[S.p]&&k!==nx)).slice(0,2);
+  opts=on?(nx===null?[]:sh([nx,...dec])):sh([S.rt[S.p],...dec]);
+  if(!S.seen.includes(c))S.seen.push(c);
+  draw();
+}
+function end(r,m){ended=r;music("menu");draw();say(m)}
+function check(){
+  if(S.t<=0)end("lose","⏰ Se acabó el tiempo. "+S.vil+" se escapó con "+S.item+"… ¡Mañana será otro día!");
+  else if(S.m<60&&opts.length&&!ended)end("lose","💸 Te quedaste sin plata para volar. El caso se enfrió…");
+  return !!ended;
+}
+function look(k){
+  if(ended||S.stage!=="inv")return;S.t-=3;beep(300,.08);music("inv");
+  const last=S.rt.length-1,on=S.cur===S.rt[S.p];S.gone.push(k);let msg;
+  if(!on)msg="Nadie vio nada raro por acá… seguiste una pista falsa. Volvé al rastro.";
+  else if(S.p===last){
+    if(k===S.thief){S.stage="lineup";draw();beep(700,.2);say("¡LO ENCONTRASTE! Está escondido acá. Ahora armá la orden de arresto: elegí al sospechoso que coincide con tu cuaderno. ¡Si te equivocás perdés 12 h!");return}
+    msg="Nadie lo vio acá, pero encontraste un rastro. "+(trait()||"Está cerca, probá otro lugar.");
+  }else{
+    let c=S.rt[S.p+1];const liar=Math.random()<.08+.04*rank;
+    if(liar)c=sh([...D.keys()].filter(x=>x!==c&&x!==S.cur))[0];
+    const cl=clue(S.cur,c);S.nb.push("📍 "+D[S.cur].n+": "+cl);
+    msg=L[S.locs[k]][2].replace(/^./,m=>m.toUpperCase())+" dice: “"+cl+"”"+(liar&&Math.random()<.5?" (parece nervioso…)":"");
+    if(Math.random()<.45){const tr=trait();if(tr)msg+="\n"+tr}
+  }
+  if(check())return;draw();say(msg);
+}
+function fly(j){
+  if(ended||S.stage!=="inv")return;
+  const h0=hrs(S.cur,j),h=S.ex?Math.ceil(h0*.6):h0,cost=S.ex?150:60;
+  if(S.m<cost)return;
+  S.t-=h;S.m-=cost;beep(200,.3);music("fly");
+  if(S.cur===S.rt[S.p]&&j===S.rt[S.p+1])S.p++;
+  if(S.t<=0){S.cur=j;check();return}
+  arrive(j);
+  const last=S.rt.length-1,on=j===S.rt[S.p];
+  let msg="✈ Aterrizaste en "+D[j].n+" (−"+h+" h, −$"+cost+"). "+(on?(S.p===last?"¡Estás en la ciudad final! Revisá los 3 lugares para encontrarlo.":"Hay rastro fresco, ¡investigá!"):"Acá no hay rastro: fue una pista falsa. Volvé a "+D[S.rt[S.p]].n+".");
+  if(Math.random()<.3){
+    const e=rnd(5);
+    if(e===0){S.t-=4;msg+="\n⛈ Tormenta en pleno vuelo: −4 h."}
+    else if(e===1){S.t-=6;msg+="\n🪧 Huelga de controladores: −6 h."}
+    else if(e===2){S.t+=3;msg+="\n🍀 Viento de cola: ganaste 3 h."}
+    else if(e===3){S.m+=100;msg+="\n💰 Encontraste $100 en el asiento."}
+    else{const q=(on&&S.p<last)?(()=>{const c=clue(S.cur,S.rt[S.p+1]);S.nb.push("📍 "+D[S.cur].n+": "+c);return c})():trait();if(q)msg+="\n🕵️ Un informante susurra: “"+q+"”"}
+  }
+  if(check())return;draw();say(msg);
+}
+const BS=[["🍍","El Ananá Supremo"],["🧛","El Conde Sin Brújula"],["🥷","La Sombra de Tokio"],["🐲","El Dragón de Pekín"],["🦂","El Escorpión del Desierto"],["👑","La Reina del Crimen Global"]];
+function bq(){
+  const A=D[rnd(D.length)],ty=rnd(4);let q,ans,pool;
+  if(ty===0){q="¿Qué moneda se usa en "+A.n+"?";ans=A.cu;pool=D.map(x=>x.cu)}
+  else if(ty===1){q="¿Qué idioma se habla en "+A.n+"?";ans=A.lg;pool=D.map(x=>x.lg)}
+  else if(ty===2){q="¿En qué continente queda "+A.n+"?";ans=A.ct;pool=D.map(x=>x.ct)}
+  else{q="¿Qué ciudad tiene "+A.lm+"?";ans=A.n;pool=D.map(x=>x.n)}
+  return{q,ans,o:sh([ans,...sh([...new Set(pool)].filter(x=>x!==ans)).slice(0,3)])};
+}
+function startBoss(){
+  const B=BS[rank];S.stage="boss";S.bh=Math.min(3+rank,8);S.bl=3;S.bq=bq();music("boss");draw();
+  say("🚔 ¡Arrestaste a "+S.vil+"! Pero aparece "+B[0]+" "+B[1]+", el jefe de la banda: “¡Nadie me atrapa sin saber geografía!” Es un duelo de ingenio: acertá "+S.bh+" preguntas antes de perder tus 3 vidas.\n\n"+S.bq.q);
+}
+function bossAns(o){
+  if(ended||S.stage!=="boss")return;const B=BS[rank],old=S.bq;
+  if(o===old.ans){
+    S.bh--;beep(880,.12);
+    if(S.bh<=0){rank=Math.min(rank+1,5);try{localStorage.setItem("dg-rank",rank)}catch(e){}beep(1040,.4);end("win","🏆 ¡DERROTASTE A "+B[1].toUpperCase()+"! "+S.vil+" va preso y recuperaste "+S.item+". Ascendiste a "+RK[rank]+".");return}
+    S.bq=bq();draw();say("✅ ¡Golpe certero! Al jefe le quedan "+S.bh+" puntos.\n\n"+S.bq.q);
+  }else{
+    S.bl--;beep(110,.35);
+    if(S.bl<=0){end("lose","💀 "+B[1]+" te venció y escapó con "+S.item+"… ¡Repasá la geografía y volvé!");return}
+    S.bq=bq();draw();say("❌ ¡Era “"+old.ans+"”! Perdés una vida ("+S.bl+" restantes).\n\n"+S.bq.q);
+  }
+}
+function arrest(i){
+  if(ended||S.stage!=="lineup")return;
+  if(i===S.truth){beep(880,.3);startBoss()}
+  else{S.t-=12;S.sus[i].x=1;if(check())return;draw();say("❌ ¡Falsa alarma! Ese no era. Perdiste 12 h. Revisá bien tu cuaderno.")}
+}
+function draw(){
+  $("hd").innerHTML="<span>"+RK[rank].toUpperCase()+"</span><span>📍 "+(S?D[S.cur].n:"—")+"</span><span>⏰ "+(S?S.t:"—")+" h</span><span>💵 $"+(S?S.m:"—")+"</span><span style=\"cursor:pointer\" onclick=\"tog()\">"+(muted?"🔇":"🔊")+"</span>";
+  const X=c=>D[c].lo+180,Y=c=>90-D[c].la;let s="";
+  for(let x=0;x<=360;x+=30)s+='<line x1="'+x+'" y1="0" x2="'+x+'" y2="180" stroke="#1a4a9a" stroke-width=".4"/>';
+  for(let y=0;y<=180;y+=30)s+='<line x1="0" y1="'+y+'" x2="360" y2="'+y+'" stroke="#1a4a9a" stroke-width=".4"/>';
+  for(const p of CONT)s+='<polygon points="'+p.map(q=>(q[0]+180)+","+(90-q[1])).join(" ")+'" fill="#2a8a3a" stroke="#55ff55" stroke-width=".6"/>';
+  if(S){
+    for(const c of S.seen)s+='<circle cx="'+X(c)+'" cy="'+Y(c)+'" r="2" fill="#aaa"/>';
+    if(S.stage==="inv"&&!ended)for(const c of opts)s+='<g style="cursor:pointer" onclick="fly('+c+')"><circle cx="'+X(c)+'" cy="'+Y(c)+'" r="4" fill="rgba(255,255,85,.25)" stroke="#ffff55" stroke-width="1.2"/><text x="'+X(c)+'" y="'+(Y(c)-6)+'" font-size="7" fill="#ffff55" text-anchor="middle" font-family="Courier New">'+D[c].n+'</text></g>';
+    s+='<circle cx="'+X(S.cur)+'" cy="'+Y(S.cur)+'" r="4" fill="#ff5555" stroke="#fff"><animate attributeName="r" values="3;6;3" dur="1s" repeatCount="indefinite"/></circle>';
+  }
+  $("mp").innerHTML=s;
+  $("nb").textContent=S?"📓 CUADERNO (tocá el mapa o los botones para volar)\n"+(S.nb.length?S.nb.join("\n"):"— sin pistas todavía —"):"📓 CUADERNO";
+  $("nb").scrollTop=1e5;
+  const b=$("bt");b.innerHTML="";
+  const row=(t,arr)=>{if(t){const l=document.createElement("div");l.className="lb";l.textContent=t;b.appendChild(l)}const r=document.createElement("div");r.className="row";arr.forEach(x=>r.appendChild(x));b.appendChild(r)};
+  const mk=(t,f,d)=>{const e=document.createElement("button");e.textContent=t;e.onclick=f;e.disabled=!!d;return e};
+  if(!S){row("",[mk("▶ NUEVO CASO",newCase)]);return}
+  if(ended){row("",[mk(ended==="win"?"▶ SIGUIENTE CASO ("+RK[rank]+")":"▶ REINTENTAR",newCase)]);return}
+  if(S.stage==="boss"){row(BS[rank][0]+" "+BS[rank][1]+" ❤"+S.bh+"  ·  Tus vidas: "+"❤️".repeat(S.bl),S.bq.o.map(o=>mk(o,()=>bossAns(o))));return}
+  if(S.stage==="lineup"){row("📝 ORDEN DE ARRESTO: ¿quién es?",S.sus.map((x,i)=>mk(x.n+" — pelo "+T[0][1][x.t[0]]+", "+T[1][1][x.t[1]]+", "+T[2][1][x.t[2]],()=>arrest(i),x.x)));return}
+  row(S.p===S.rt.length-1&&S.cur===S.rt[S.p]?"¿Dónde se esconde? (−3 h)":"🔎 Investigar (−3 h)",S.locs.map((l,i)=>mk(L[l][0]+" "+L[l][1],()=>look(i),S.gone.includes(i))));
+  if(opts.length){
+    const f=[mk(S.ex?"🚀 Exprés: −40% de tiempo, $150":"🐢 Económico: $60 (tocá para cambiar)",()=>{S.ex=!S.ex;draw()})];
+    opts.forEach(j=>{const h=hrs(S.cur,j);f.push(mk("✈ "+D[j].n+" ("+(S.ex?Math.ceil(h*.6):h)+" h)",()=>fly(j),S.m<(S.ex?150:60)))});
+    row("✈ Volar a…",f);
+  }
+}
+draw();
+music("menu");say("🌍 DETECTIVE GLOBAL ’95 🌍  Sos un agente de la agencia internacional. Seguí a un ladrón de ciudad en ciudad: ¡tu geografía es tu mejor arma! Juntá pistas de la ruta y datos del sospechoso para armar la orden de arresto." +(rank?" Tu rango guardado: "+RK[rank]+".":"")+" Tocá NUEVO CASO.");
+</script>
+</body>
+</html>
